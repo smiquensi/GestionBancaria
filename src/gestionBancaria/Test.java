@@ -10,5 +10,5 @@ package gestionBancaria;
  * @author santimiquel
  */
 public class Test {
-    
+
 }

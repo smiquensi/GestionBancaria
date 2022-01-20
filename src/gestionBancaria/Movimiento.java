@@ -35,4 +35,10 @@ public class Movimiento {
     public double getImporte() {
         return importe;
     }
+
+    @Override
+    public String toString() {
+        return "Movimiento{" + "fecha=" + fecha + ", importe=" + importe + ", concepto=" + concepto + '}';
+    }
+    
 }

@@ -6,12 +6,14 @@
 package gestionBancaria;
 
 import static gestionBancaria.MenuPrincipal.teclado;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -22,11 +24,8 @@ public class CuentaBancaria {
     private String numCuenta;
     private Persona titular;
     private double saldo;
-    private final int SALDO_MINIMO = -50;
-    private final int MOVIMIENTO_GRANDE = 3000;
-    private final String AVISO_NEGATIVO = "AVISO: Saldo negativo";
-    private final String AVISO_HACIENDA = "AVISO: Notificación a Hacienda";
-    private  Scanner teclado = new Scanner(System.in);
+    private DecimalFormat formateador = new DecimalFormat("###,###.##€");
+    
     private List<Movimiento> movimientos;
     private Set<Persona> autorizados = new HashSet<>();
 
@@ -51,37 +50,35 @@ public class CuentaBancaria {
         return saldo;
     }
 
-    public boolean autorizar() {// revisar si esto vale para hacer la parte de otros titulares
-        String autorizadoDNI, autorizadoNombre;
-        System.out.println("Indique el DNI del nuevo autorizado: ");
-        autorizadoDNI = teclado.nextLine();
-        System.out.println("Indique el nombre del nuevo autorizado: ");
-        autorizadoNombre = teclado.nextLine();
-        Persona autorizado = new Persona(autorizadoDNI, autorizadoNombre);
-        System.out.println("El nuevo autorizado se ha añadido correctamente");
-        System.out.println("En esta cuenta hay " + (autorizados.size() + 1) + " personas autorizadas.\n");
-        return autorizados.add(autorizado); // hadcer pruebas para ver como eliminar a los titulares.
+    public String showSaldo() {
+        return formateador.format(saldo);
+    }
+
+    public Set<Persona> getAutorizados() {
+        return autorizados;
     }
 
     public boolean autorizar(String autorizadoDNI, String autorizadoNombre) {
         Persona autorizado = new Persona(autorizadoDNI, autorizadoNombre);
-        System.out.println("El nuevo autorizado se ha añadido correctamente");
-        System.out.println("En esta cuenta hay " + (autorizados.size() + 1) + " personas autorizadas.\n");
-        return autorizados.add(autorizado);
+        boolean autorizadoAnyadido = false;
+        if (autorizados.toString().contains(autorizadoDNI)) {
+            autorizadoAnyadido = false;
+        } else {
+            autorizadoAnyadido = autorizados.add(autorizado);
+
+        }
+        return autorizadoAnyadido;
+
     }
 
-    public boolean quitarAutorizado() {
-        if (autorizados.size() > 1) {
-            System.out.println("Indique el DNI de la persona que quiere eliminar: ");
-            String autorizadoDNI = teclado.nextLine();
-            System.out.println("La persona autorizada se ha eliminado correctamente.");
-            System.out.println("En esta cuenta hay " + (autorizados.size() - 1) + " personas autorizadas.\n");
-            return autorizados.remove(autorizadoDNI);
-        } else {
-            System.out.println("No puede haber menos de un titular.\n");
-            return false;
+    public boolean quitarAutorizado(String autorizadoDNI) {
+        boolean autorizadoEliminado = false;
+        for (Persona buscarAutorizado : autorizados) {
+            if (buscarAutorizado.getNif().equalsIgnoreCase(autorizadoDNI)) {
+                autorizadoEliminado = autorizados.remove(buscarAutorizado);
+            }
         }
-
+        return autorizadoEliminado;
     }
 
     public String verAutorizados() {
@@ -92,70 +89,33 @@ public class CuentaBancaria {
         return "";
     }
 
-//    private double hacerMovimiento(double importe, String concepto) {
-//        movimientos.add(importe, concepto);
-//        return saldo;
-//
-//    }
-
     private boolean registrarMovimiento(double importe, String concepto) {
         Movimiento mov = new Movimiento(importe, concepto); // no se si tengo  q añadir el new Date
         return movimientos.add(mov);
-        }
-
-    public void ingresar(double importe) { // meter trycatch para texto 
-
-        if (importe >= 0) {
-            if (importe >= MOVIMIENTO_GRANDE) {
-                System.out.println(AVISO_HACIENDA);
-            }
-            saldo += importe;
-            System.out.println("Indique el concepto para esta transacción: ");
-            registrarMovimiento(importe, teclado.nextLine());
-            System.out.println("**Ingreso realizado con éxito**\n");
-        } else {
-            System.out.println("Introduzca un importe igual o superior a 0\n");
-        }
-
     }
 
-    public boolean sacar(double importe) { // meter trycatch para texto 
-        double nuevoSaldo = getSaldo() - importe;
-
-        if (importe >= 0) {
-            if (nuevoSaldo < SALDO_MINIMO) {
-                System.out.println("No se permite tener un saldo por debajo de -50\n");
-                return false;
-            }
-            if (nuevoSaldo < 0) {
-                System.out.println(AVISO_NEGATIVO);
-            }
-            if (importe >= MOVIMIENTO_GRANDE) {
-                System.out.println(AVISO_HACIENDA);
-            }
-            saldo = nuevoSaldo;
-            System.out.println("Indique el concepto para esta transacción: ");
-            registrarMovimiento((importe * -1), teclado.nextLine());
-            System.out.println("**Retirada realizada con éxito**\n");
-            return true;
-        } else {
-            System.out.println("Introduzca un importe igual o superior a 0\n");
-            return false;
-        }
+    public void ingresar(double importe, String concepto) {
+        saldo += importe;
+        registrarMovimiento(importe, concepto);
     }
 
-    public String getMovimientos() {
-        String movimientoList = null;
+    public void sacar(double importe, String concepto) {
+        saldo = getSaldo() - importe;
+        registrarMovimiento((importe * -1), concepto);
+    }
+
+    public String getMovimientos() { //revisar que este correcto esto
+        String movimientoList = "";
         for (Movimiento movimiento : movimientos) {
-            movimientoList = movimiento + ", ";
+            movimientoList += movimiento.toString() + "\n";
         }
         return movimientoList;
     }
 
-    public String informacionCuenta() { // falta los demas autorizados
-        String infoCliente = ("nº de Cuenta: " + this.numCuenta + "\nNombre titular : "
-                + this.titular + verAutorizados()
-                + "\nSaldo : " + getSaldo() + "€\n");
-        return infoCliente;
-    }
+//    public String informacionCuenta() {
+//        String infoCliente = ("nº de Cuenta: " + this.numCuenta + "\nNombre titular : "
+//                + this.titular + verAutorizados()
+//                + "\nSaldo : " + getSaldo() + "€\n");
+//        return infoCliente;
+//    }
 }
