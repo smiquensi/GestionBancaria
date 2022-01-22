@@ -16,30 +16,32 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author santimiquel
  */
 public class Movimiento {
-    private final LocalDateTime fecha;
-    private final double importe;
-    private final String concepto;
+    private final LocalDateTime FECHA;
+    private final double IMPORTE;
+    private final String CONCEPTO;
+    private  String DNI;
 
     //constructor
-    public Movimiento(double importe, String concepto) {
-        this.fecha = LocalDateTime.now();
-        this.importe = importe;
-        this.concepto = concepto;
+    public Movimiento(double importe, String concepto, String dni) {
+        this.FECHA = LocalDateTime.now();
+        this.IMPORTE = importe;
+        this.CONCEPTO = concepto;
+        this.DNI = dni;
         
     }
 
     public LocalDateTime getFecha() {
-        return fecha;
+        return FECHA;
     }
 
     public double getImporte() {
-        return importe;
+        return IMPORTE;
     }
 
     @Override
     public String toString() {
-        return "Movimiento{" + "fecha=" + fecha + ", importe=" + importe + 
-                ", concepto=" + concepto + '}';
+        return "Movimiento{" + "fecha=" + FECHA + ", importe=" + IMPORTE + 
+                ", concepto=" + CONCEPTO + '}';
     }
     
 }

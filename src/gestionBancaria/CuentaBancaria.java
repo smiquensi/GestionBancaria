@@ -25,14 +25,14 @@ public class CuentaBancaria {
     private Persona titular;
     private double saldo;
     private DecimalFormat formateador = new DecimalFormat("###,###.##€");
-    
+
     private List<Movimiento> movimientos;
-    private Set<Persona> autorizados = new HashSet<>();
+    private Set<Persona> titulares = new HashSet<>();
 
     public CuentaBancaria(String ncuenta, Persona titular) {
         this.numCuenta = ncuenta;
         this.titular = titular;
-        autorizados.add(titular);
+        titulares.add(titular);
         saldo = 0;
         movimientos = new ArrayList<>();
     }
@@ -54,17 +54,17 @@ public class CuentaBancaria {
         return formateador.format(saldo);
     }
 
-    public Set<Persona> getAutorizados() {
-        return autorizados;
+    public Set<Persona> getTitulares() {
+        return titulares;
     }
 
     public boolean autorizar(String autorizadoDNI, String autorizadoNombre) {
         Persona autorizado = new Persona(autorizadoDNI, autorizadoNombre);
         boolean autorizadoAnyadido = false;
-        if (autorizados.toString().contains(autorizadoDNI)) {
+        if (titulares.toString().contains(autorizadoDNI)) {
             autorizadoAnyadido = false;
         } else {
-            autorizadoAnyadido = autorizados.add(autorizado);
+            autorizadoAnyadido = titulares.add(autorizado);
 
         }
         return autorizadoAnyadido;
@@ -73,36 +73,49 @@ public class CuentaBancaria {
 
     public boolean quitarAutorizado(String autorizadoDNI) {
         boolean autorizadoEliminado = false;
-        for (Persona buscarAutorizado : autorizados) {
+        for (Persona buscarAutorizado : titulares) {
             if (buscarAutorizado.getNif().equalsIgnoreCase(autorizadoDNI)) {
-                autorizadoEliminado = autorizados.remove(buscarAutorizado);
+                autorizadoEliminado = titulares.remove(buscarAutorizado);
+                break;
             }
         }
         return autorizadoEliminado;
-    }
 
-    public String verAutorizados() {
-        //Se mostrara el toString() de cada objeto Persona que hay en el atributo autorizados
-        if (autorizados.size() > 1) {
-            return "\nPersonas autorizadas: " + autorizados;
+    }
+// intentar meter este metodo dentro de los metodos quitarAutorizado y autorizar
+
+    public boolean buscarAutorizado(String autorizadoDNI) {
+        boolean autorizadoExiste = false;
+        for (Persona buscarAutorizado : titulares) {
+            if (buscarAutorizado.getNif().equalsIgnoreCase(autorizadoDNI)) {
+                autorizadoExiste = true;
+                break;
+            }
         }
-        return "";
+        return autorizadoExiste;
     }
 
-    private boolean registrarMovimiento(double importe, String concepto) {
-        Movimiento mov = new Movimiento(importe, concepto); // no se si tengo  q añadir el new Date
+//    public String verAutorizados() {
+//        //Se mostrara el toString() de cada objeto Persona que hay en el atributo autorizados
+//        if (titulares.size() > 1) {
+//            return  "\nPersonas autorizadas: "+ titulares.toString();
+//        }
+//        return "";
+//    }
+    private boolean registrarMovimiento(double importe, String concepto, String dniIngreso) {
+        Movimiento mov = new Movimiento(importe, concepto, dniIngreso); // no se si tengo  q añadir el new Date
         return movimientos.add(mov);
     }
 
-    public double ingresar(double importe, String concepto) {
+    public double ingresar(double importe, String concepto, String dniIngreso) {
         saldo += importe;
-        registrarMovimiento(importe, concepto);
+        registrarMovimiento(importe, concepto, dniIngreso);
         return saldo;
     }
 
-    public double sacar(double importe, String concepto) {
+    public double sacar(double importe, String concepto, String dniIngreso) {
         saldo = getSaldo() - importe;
-        registrarMovimiento((importe * -1), concepto);
+        registrarMovimiento((importe * -1), concepto, dniIngreso);
         return saldo;
     }
 
