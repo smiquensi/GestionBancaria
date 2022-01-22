@@ -94,14 +94,16 @@ public class CuentaBancaria {
         return movimientos.add(mov);
     }
 
-    public void ingresar(double importe, String concepto) {
+    public double ingresar(double importe, String concepto) {
         saldo += importe;
         registrarMovimiento(importe, concepto);
+        return saldo;
     }
 
-    public void sacar(double importe, String concepto) {
+    public double sacar(double importe, String concepto) {
         saldo = getSaldo() - importe;
         registrarMovimiento((importe * -1), concepto);
+        return saldo;
     }
 
     public String getMovimientos() { //revisar que este correcto esto

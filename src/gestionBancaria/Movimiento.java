@@ -38,7 +38,8 @@ public class Movimiento {
 
     @Override
     public String toString() {
-        return "Movimiento{" + "fecha=" + fecha + ", importe=" + importe + ", concepto=" + concepto + '}';
+        return "Movimiento{" + "fecha=" + fecha + ", importe=" + importe + 
+                ", concepto=" + concepto + '}';
     }
     
 }

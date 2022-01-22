@@ -38,23 +38,18 @@ public class MenuPrincipal {
                     break;
                 case "2":
                     hacerIngreso(cuenta);
-                    System.out.println(informacionCuenta(cuenta));
                     break;
                 case "3":
                     hacerRetirada(cuenta);
-                    System.out.println(informacionCuenta(cuenta));
                     break;
                 case "4":
                     registrarAutorizado(cuenta);
-                    System.out.println(informacionCuenta(cuenta));
                     break;
                 case "5":
                     eliminarAutorizado(cuenta);
-                    System.out.println(informacionCuenta(cuenta));
                     break;
                 case "6":
-                    System.out.println(cuenta.getMovimientos());
-                    System.out.println(informacionCuenta(cuenta));
+                    System.out.println(cuenta.getMovimientos());                   
                     break;
                 case "0":
                     bucleMenu = false;
@@ -64,7 +59,9 @@ public class MenuPrincipal {
                 default:
                     System.out.println("Introduzca un numero del 0 al 6.");
             }
-
+            if (!respuesta.equalsIgnoreCase("0")&& !respuesta.equalsIgnoreCase("1")) {
+                System.out.println(informacionCuenta(cuenta));
+            }
         } while (bucleMenu);
 
     }
@@ -107,7 +104,7 @@ public class MenuPrincipal {
         return resultadoIngreso;
     }
 
-    public static void hacerRetirada(CuentaBancaria cuenta) { // meter trycatch para texto 
+    public static double hacerRetirada(CuentaBancaria cuenta) { // meter trycatch para texto 
         System.out.println("Indique el importe a retirar: ");
         importe = teclado.nextDouble();
         if (importe >= 0) {
@@ -129,6 +126,7 @@ public class MenuPrincipal {
             System.out.println("Introduzca un importe igual o superior a 0\n");
 
         }
+        return cuenta.getSaldo();
     }
 
     public static void registrarAutorizado(CuentaBancaria cuenta) {
