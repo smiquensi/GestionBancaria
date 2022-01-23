@@ -8,8 +8,8 @@ package gestionBancaria;
 import java.util.Calendar;
 import java.util.Date;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
-
 
 /**
  *
@@ -17,9 +17,10 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Movimiento {
     private final LocalDateTime FECHA;
+    private DateTimeFormatter fechaFormateada = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final double IMPORTE;
     private final String CONCEPTO;
-    private  String DNI;
+    private String DNI;
 
     //constructor
     public Movimiento(double importe, String concepto, String dni) {
@@ -27,8 +28,11 @@ public class Movimiento {
         this.IMPORTE = importe;
         this.CONCEPTO = concepto;
         this.DNI = dni;
-        
+
     }
+//    public Movimiento(){
+//        this.FECHA = LocalDateTime.now();   
+//    }
 
     public LocalDateTime getFecha() {
         return FECHA;
@@ -40,8 +44,8 @@ public class Movimiento {
 
     @Override
     public String toString() {
-        return "Movimiento{" + "fecha=" + FECHA + ", importe=" + IMPORTE + 
-                ", concepto=" + CONCEPTO + '}';
+        return ("Movimiento ->  Fecha: " + this.FECHA.format(fechaFormateada) + "-> Importe: " + this.IMPORTE
+                + "€ -> Concepto=" + this.CONCEPTO);
     }
-    
+
 }

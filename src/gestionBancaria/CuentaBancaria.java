@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Scanner;
@@ -29,6 +30,9 @@ public class CuentaBancaria {
     private List<Movimiento> movimientos;
     private Set<Persona> titulares = new HashSet<>();
 
+    private String recienEliminado;
+    private String recienAnyadido;
+
     public CuentaBancaria(String ncuenta, Persona titular) {
         this.numCuenta = ncuenta;
         this.titular = titular;
@@ -37,7 +41,7 @@ public class CuentaBancaria {
         movimientos = new ArrayList<>();
     }
 
-    //NO HAY METODOS SET PORQUE NO PERMITIMOS MODIFICAR DATOS DESPUES DE CREAR EL OBJETO
+    
     public String getNumCuenta() {
         return numCuenta;
     }
@@ -58,6 +62,14 @@ public class CuentaBancaria {
         return titulares;
     }
 
+    public String getRecienEliminado() {
+        return recienEliminado;
+    }
+
+    public String getRecienAnyadido() {
+        return recienAnyadido;
+    }
+
     public boolean autorizar(String autorizadoDNI, String autorizadoNombre) {
         Persona autorizado = new Persona(autorizadoDNI, autorizadoNombre);
         boolean autorizadoAnyadido = false;
@@ -65,6 +77,7 @@ public class CuentaBancaria {
             autorizadoAnyadido = false;
         } else {
             autorizadoAnyadido = titulares.add(autorizado);
+            recienAnyadido = autorizado.toString();
 
         }
         return autorizadoAnyadido;
@@ -76,13 +89,13 @@ public class CuentaBancaria {
         for (Persona buscarAutorizado : titulares) {
             if (buscarAutorizado.getNif().equalsIgnoreCase(autorizadoDNI)) {
                 autorizadoEliminado = titulares.remove(buscarAutorizado);
+                recienEliminado = buscarAutorizado.toString();
                 break;
             }
         }
         return autorizadoEliminado;
 
     }
-// intentar meter este metodo dentro de los metodos quitarAutorizado y autorizar
 
     public boolean buscarAutorizado(String autorizadoDNI) {
         boolean autorizadoExiste = false;
@@ -95,15 +108,8 @@ public class CuentaBancaria {
         return autorizadoExiste;
     }
 
-//    public String verAutorizados() {
-//        //Se mostrara el toString() de cada objeto Persona que hay en el atributo autorizados
-//        if (titulares.size() > 1) {
-//            return  "\nPersonas autorizadas: "+ titulares.toString();
-//        }
-//        return "";
-//    }
     private boolean registrarMovimiento(double importe, String concepto, String dniIngreso) {
-        Movimiento mov = new Movimiento(importe, concepto, dniIngreso); // no se si tengo  q añadir el new Date
+        Movimiento mov = new Movimiento(importe, concepto, dniIngreso); 
         return movimientos.add(mov);
     }
 
@@ -119,7 +125,7 @@ public class CuentaBancaria {
         return saldo;
     }
 
-    public String getMovimientos() { //revisar que este correcto esto
+    public String getMovimientos() { 
         String movimientoList = "";
         for (Movimiento movimiento : movimientos) {
             movimientoList += movimiento.toString() + "\n";
@@ -127,10 +133,24 @@ public class CuentaBancaria {
         return movimientoList;
     }
 
-//    public String informacionCuenta() {
-//        String infoCliente = ("nº de Cuenta: " + this.numCuenta + "\nNombre titular : "
-//                + this.titular + verAutorizados()
-//                + "\nSaldo : " + getSaldo() + "€\n");
-//        return infoCliente;
-//    }
+    public String getIngresos() {
+        String movPositivos = "";
+        for (int i = 0; i < movimientos.size(); i++) {
+            if (movimientos.get(i).getImporte() > 0) {
+                movPositivos += movimientos.get(i).toString() + "\n";
+            }
+        }
+        return movPositivos;
+    }
+
+    public String getRetiradas() {
+        String movNegativos = "";
+        for (int i = 0; i < movimientos.size(); i++) {
+            if (movimientos.get(i).getImporte() < 0) {
+                movNegativos += movimientos.get(i).toString() + "\n";
+            }
+        }
+        return movNegativos;
+    }
+
 }

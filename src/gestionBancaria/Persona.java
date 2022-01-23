@@ -54,8 +54,6 @@ public class Persona {
         }
         return resultado;
         
-        //OTRA FORMA DE ESCRIBIRLO
-        // return nif.equalsIgnoreCase(dni);
     }
     
     

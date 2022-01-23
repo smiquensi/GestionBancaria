@@ -16,7 +16,7 @@ import java.util.Scanner;
 public class MenuPrincipal {
 
     static Scanner teclado = new Scanner(System.in);
-    static Scanner sc = new Scanner(System.in); //creo un segundo scanner para que no se me duplique el menu al ingresar o sacar efectivo
+    static Scanner sc = new Scanner(System.in);
 
     private static final int SALDO_MINIMO = -50;
     private static final int MOVIMIENTO_GRANDE = 3000;
@@ -26,7 +26,6 @@ public class MenuPrincipal {
     private static String concepto, dniIngreso, dniRetirada;
     private static boolean datosOK = false;
 
-//
     public static void main(String[] args) {
         Persona titular = new Persona("44874926V", "Santi Miquel");
         CuentaBancaria cuenta = new CuentaBancaria("ES1234567890123456789012", titular);
@@ -53,13 +52,20 @@ public class MenuPrincipal {
                 case "6":
                     System.out.println(cuenta.getMovimientos());
                     break;
+                case "7":
+                    System.out.println(cuenta.getIngresos());
+                    break;
+                case "8":
+                    System.out.println(cuenta.getRetiradas());
+                    break;
                 case "0":
                     bucleMenu = false;
                     System.out.println("Gracias por utilizar nuestros servicios.\n"
                             + "Le esperamos pronto.");
                     break;
                 default:
-                    System.out.println("Introduzca un numero del 0 al 6.\n");
+                    System.out.println("Introduzca un numero del 0 al 8.\n");
+
             }
             if (!respuesta.equalsIgnoreCase("0") && !respuesta.equalsIgnoreCase("1")) {
                 System.out.println(informacionCuenta(cuenta));
@@ -79,12 +85,14 @@ public class MenuPrincipal {
         System.out.println("4 - Nuevo titular.");
         System.out.println("5 - Eliminar titular.");
         System.out.println("6 - Ver movimientos.");
+        System.out.println("7 - Ver ingresos.");
+        System.out.println("8 - Ver retiradas.");
         System.out.println("0 - Salir.");
         respuesta = sc.nextLine();
         return respuesta;
     }
 
-    public static int hacerIngreso(CuentaBancaria cuenta) { // meter trycatch para texto 
+    public static int hacerIngreso(CuentaBancaria cuenta) {
         int resultadoIngreso = 0;
         System.out.println("Indique su DNI: ");
 
@@ -104,7 +112,7 @@ public class MenuPrincipal {
             try {
                 System.out.println("Indique el importe a ingresar: ");
                 importe = teclado.nextDouble();
-                if (importe >= 0) {
+                if (importe > 0) {
                     if (importe >= MOVIMIENTO_GRANDE) {
                         System.out.println(AVISO_HACIENDA + "\n");
                         resultadoIngreso = 1;
@@ -117,13 +125,12 @@ public class MenuPrincipal {
                     System.out.println("**Ingreso realizado con éxito**\n");
                     datosOK = true;
                 } else {
-                    System.out.println("Introduzca un importe igual o superior a 0");
+                    System.out.println("Introduzca un importe superior a 0");
                     System.out.println("**Operacion CANCELADA**\n");
                     resultadoIngreso = -1;
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Por favor, introduzca una cifra.\n");
-                datosOK = false;
                 teclado = new Scanner(System.in);
             }
         } while (!datosOK);
@@ -131,7 +138,7 @@ public class MenuPrincipal {
 
     }
 
-    public static double hacerRetirada(CuentaBancaria cuenta) { // meter trycatch para texto 
+    public static double hacerRetirada(CuentaBancaria cuenta) {
         System.out.println("Indique su DNI: ");
 
         do {
@@ -173,6 +180,7 @@ public class MenuPrincipal {
                 } else {
                     System.out.println("El DNI: " + dniRetirada + " no coincide con ningun "
                             + "autorizado en esta cuenta.");
+                    System.out.println("**Operacion CANCELADA**");
                     System.out.println("Vuelva a introducir la operación deseada en el menu.\n");
                     // Hacer que aqui no aparezca el resumen de la cuenta.
                 }
@@ -188,28 +196,37 @@ public class MenuPrincipal {
 
     public static void registrarAutorizado(CuentaBancaria cuenta) {
         String autorizadoDNI, autorizadoNombre;
-        System.out.println("Indique el DNI del nuevo autorizado: ");
-        autorizadoDNI = teclado.nextLine();
-        System.out.println("Indique el nombre del nuevo autorizado: ");
-        autorizadoNombre = sc.nextLine();
-        if (cuenta.autorizar(autorizadoDNI, autorizadoNombre)) {
-            System.out.println("El nuevo autorizado -"+ autorizadoNombre +"- se ha añadido correctamente");
-            System.out.println("En esta cuenta hay " + (cuenta.getTitulares().size()) + " personas autorizadas.\n");
-        } else {
-            System.out.println("Este autorizado ya existe en esta cuenta.");
-        }
+        do {
+            System.out.println("Indique el DNI del nuevo autorizado: ");
+            autorizadoDNI = teclado.nextLine();
+            if (autorizadoDNI.matches("^\\d?\\d{7}[-|\\s]?[A-Za-z]$")) {
+                System.out.println("Indique el nombre del nuevo autorizado: ");
+                datosOK = true;
+                autorizadoNombre = sc.nextLine();
+                if (cuenta.autorizar(autorizadoDNI, autorizadoNombre)) {
+                    System.out.println("El nuevo autorizado " + cuenta.getRecienAnyadido() + " se ha añadido correctamente");
+                    System.out.println("En esta cuenta hay " + (cuenta.getTitulares().size()) + " personas autorizadas.\n");
+                } else {
+                    System.out.println("Este autorizado ya existe en esta cuenta.");
+                }
+            } else {
+                System.out.println("Este no es un formato correcto de DNI.");
+                System.out.println("Introduzca un DNI con formato correcto, por favor.");
+                datosOK = false;
+            }
+        } while (!datosOK);
 
     }
-    // Revisasr eliminar autorizados. Si me elimino yo me salta excepcion
+
     public static void eliminarAutorizado(CuentaBancaria cuenta) {
         if (cuenta.getTitulares().size() > 1) {
             System.out.println("Indique el DNI de la persona que quiere eliminar: ");
             String autorizadoDNI = teclado.nextLine();
             if (cuenta.quitarAutorizado(autorizadoDNI)) {
-                System.out.println("La persona autorizada se ha eliminado correctamente.");
+                System.out.println("La persona " + cuenta.getRecienEliminado() + " se ha eliminado como titular correctamente.");
                 System.out.println("En esta cuenta hay " + (cuenta.getTitulares().size()) + " personas autorizadas.\n");
             } else {
-                System.out.println("No se encuentra ninguna persona autorizada con este DNI");
+                System.out.println("No se encuentra ninguna persona autorizada con este DNI\n");
             }
 
         } else {
