@@ -11,15 +11,17 @@ package gestionBancaria;
  */
 public class Persona {
     
+    // ATRIBUTOS CLASE PERSONA
     private final String NIF;
     private String nombre;
 
-      
+    // CONSTRUCTOR
     public Persona(String nif, String nombre) {
         this.NIF = nif;
         this.nombre = nombre;
     }
-
+    
+    // GETTERS Y SETTERS
     public String getNombre() {
         return nombre;
     }
@@ -33,19 +35,18 @@ public class Persona {
     }
     
     
-    //COMPARA ESTA PERSONA EN LA QUE ESTAMOS CON OTRO OBJETO PERSONA (PARÁMETRO otraPersona)
-    public boolean igual(Persona otraPersona){
-        boolean resultado=false;
-        
-        if(NIF.equalsIgnoreCase(otraPersona.getNif())){
-            resultado=true;
-        }
-        return resultado;        
-       //OTRA FORMA DE HACERLO: USANDO EL MÉTODO igual(String nif)
-       //   return this.igual(person.getNif());
-    }
-    
-     //COMPARA NIF DE ESTA PERSONA EN LA QUE ESTAMOS CON OTRO NIF
+//    //COMPARA ESTA PERSONA EN LA QUE ESTAMOS CON OTRO OBJETO PERSONA (PARÁMETRO otraPersona)
+//    public boolean igual(Persona otraPersona){
+//        boolean resultado=false;
+//        
+//        if(NIF.equalsIgnoreCase(otraPersona.getNif())){
+//            resultado=true;
+//        }
+//        return resultado;        
+//
+//    }
+//    
+     // METODO COMPARA DNI PERSONA CON OTRO DNI DADO POR USUARIO
      public boolean igual(String otroNif){
         boolean resultado=false;
         

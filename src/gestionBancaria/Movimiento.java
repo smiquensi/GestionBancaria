@@ -5,35 +5,40 @@
  */
 package gestionBancaria;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
  * @author santimiquel
  */
 public class Movimiento {
+    
+    // ATRIBUTOS CLASE MOVIMIENTO
     private final LocalDateTime FECHA;
     private DateTimeFormatter fechaFormateada = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final double IMPORTE;
     private final String CONCEPTO;
     private String DNI;
 
-    //constructor
+    
+    // CONSTRUCTOR
+
+    public Movimiento(LocalDateTime FECHA, double IMPORTE, String CONCEPTO, String DNI) {
+        this.FECHA = FECHA;
+        this.IMPORTE = IMPORTE;
+        this.CONCEPTO = CONCEPTO;
+        this.DNI = DNI;
+    }
+
     public Movimiento(double importe, String concepto, String dni) {
         this.FECHA = LocalDateTime.now();
         this.IMPORTE = importe;
         this.CONCEPTO = concepto;
         this.DNI = dni;
-
     }
-//    public Movimiento(){
-//        this.FECHA = LocalDateTime.now();   
-//    }
-
+    
+     // GETTERS Y SETTERS
     public LocalDateTime getFecha() {
         return FECHA;
     }
@@ -42,6 +47,7 @@ public class Movimiento {
         return IMPORTE;
     }
 
+    // METODO TO STRING
     @Override
     public String toString() {
         return ("Movimiento ->  Fecha: " + this.FECHA.format(fechaFormateada) + "-> Importe: " + this.IMPORTE

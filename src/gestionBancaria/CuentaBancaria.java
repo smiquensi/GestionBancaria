@@ -5,16 +5,11 @@
  */
 package gestionBancaria;
 
-import static gestionBancaria.MenuPrincipal.teclado;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Scanner;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -22,7 +17,8 @@ import java.util.regex.Pattern;
  */
 public class CuentaBancaria {
 
-    private String numCuenta;
+    // ATRIBUTOS CLASE CUENTA BANCARIA
+    private final String NUM_CUENTA;
     private Persona titular;
     private double saldo;
     private DecimalFormat formateador = new DecimalFormat("###,###.##€");
@@ -30,20 +26,25 @@ public class CuentaBancaria {
     private List<Movimiento> movimientos;
     private Set<Persona> titulares = new HashSet<>();
 
-    private String recienEliminado;
-    private String recienAnyadido;
+    private String recienEliminado, recienAnyadido;
+    private Persona buscarAutorizado;
 
+    private final int MOVIMIENTO_GRANDE = 3000;
+    private final int SALDO_MINIMO = -50;
+    private int resultadoIngreso, resultadoRetirada;
+
+    // CONSTRUCTOR
     public CuentaBancaria(String ncuenta, Persona titular) {
-        this.numCuenta = ncuenta;
+        this.NUM_CUENTA = ncuenta;
         this.titular = titular;
         titulares.add(titular);
         saldo = 0;
         movimientos = new ArrayList<>();
     }
 
-    
-    public String getNumCuenta() {
-        return numCuenta;
+    // GETTERS Y SETTERS
+    public String getNUM_CUENTA() {
+        return NUM_CUENTA;
     }
 
     public Persona getTitular() {
@@ -70,37 +71,48 @@ public class CuentaBancaria {
         return recienAnyadido;
     }
 
+    public int getResultadoIngreso() {
+        return resultadoIngreso;
+    }
+
+    public int getResultadoRetirada() {
+        return resultadoRetirada;
+    }
+
+    // METODO AUTORIZAR NUEVO TITULAR
     public boolean autorizar(String autorizadoDNI, String autorizadoNombre) {
         Persona autorizado = new Persona(autorizadoDNI, autorizadoNombre);
         boolean autorizadoAnyadido = false;
-        if (titulares.toString().contains(autorizadoDNI)) {
+        if (buscarAutorizado(autorizadoDNI)) {
             autorizadoAnyadido = false;
         } else {
             autorizadoAnyadido = titulares.add(autorizado);
             recienAnyadido = autorizado.toString();
+            autorizadoAnyadido = true;
 
         }
         return autorizadoAnyadido;
 
     }
 
+    // METODO ELIMINAR TITULAR
     public boolean quitarAutorizado(String autorizadoDNI) {
         boolean autorizadoEliminado = false;
-        for (Persona buscarAutorizado : titulares) {
-            if (buscarAutorizado.getNif().equalsIgnoreCase(autorizadoDNI)) {
-                autorizadoEliminado = titulares.remove(buscarAutorizado);
-                recienEliminado = buscarAutorizado.toString();
-                break;
-            }
+        if (buscarAutorizado(autorizadoDNI)) {
+            autorizadoEliminado = titulares.remove(buscarAutorizado);
+            recienEliminado = buscarAutorizado.toString();
         }
+
         return autorizadoEliminado;
 
     }
 
+    // METODO BUSCAR SI EL TITULAR YA EXISTE EN EL VECTOR DE TITULARES
     public boolean buscarAutorizado(String autorizadoDNI) {
         boolean autorizadoExiste = false;
-        for (Persona buscarAutorizado : titulares) {
-            if (buscarAutorizado.getNif().equalsIgnoreCase(autorizadoDNI)) {
+        for (Persona buscarTitular : titulares) {
+            if (buscarTitular.igual(autorizadoDNI)) {
+                buscarAutorizado = buscarTitular;
                 autorizadoExiste = true;
                 break;
             }
@@ -108,31 +120,61 @@ public class CuentaBancaria {
         return autorizadoExiste;
     }
 
+    // METODO PARA AÑADIR NUEVO MOVIMIENTO AL VECTOR DE MOVIMIENTOS
     private boolean registrarMovimiento(double importe, String concepto, String dniIngreso) {
-        Movimiento mov = new Movimiento(importe, concepto, dniIngreso); 
+        Movimiento mov = new Movimiento(importe, concepto, dniIngreso);
         return movimientos.add(mov);
     }
 
-    public double ingresar(double importe, String concepto, String dniIngreso) {
-        saldo += importe;
-        registrarMovimiento(importe, concepto, dniIngreso);
-        return saldo;
+    // METODO PARA REALIZAR INGRESO
+    public int ingresar(double importe, String concepto, String dniIngreso) {
+        if (importe > 0) {
+            if (importe >= MOVIMIENTO_GRANDE) {
+                resultadoIngreso = 1;
+
+            } else {
+                resultadoIngreso = 0;
+
+            }
+            saldo += importe;
+            registrarMovimiento(importe, concepto, dniIngreso);
+        } else {
+            resultadoIngreso = -1;
+        }
+        return resultadoIngreso;
     }
 
-    public double sacar(double importe, String concepto, String dniIngreso) {
-        saldo = getSaldo() - importe;
-        registrarMovimiento((importe * -1), concepto, dniIngreso);
-        return saldo;
+    // METODO PARA REALIZAR RETIRADA
+    public int sacar(double importe, String concepto, String dniIngreso) {
+        if (importe > 0) {
+            if ((saldo - importe) < SALDO_MINIMO) {
+                resultadoRetirada = -1;
+            } else {
+                saldo -= importe;
+                if (saldo < 0) {
+                    resultadoRetirada = 0;
+                } else {
+                    resultadoRetirada = 1;
+                }
+                if (importe >= MOVIMIENTO_GRANDE) {
+                    resultadoRetirada = 2;
+                }
+                registrarMovimiento((importe * -1), concepto, dniIngreso);
+            }
+        }
+        return resultadoRetirada;
     }
-
-    public String getMovimientos() { 
+       
+    // METODO PARA OBTENER TODOS LOS MOVIMIENTOS
+    public String getMovimientos() {
         String movimientoList = "";
         for (Movimiento movimiento : movimientos) {
             movimientoList += movimiento.toString() + "\n";
         }
         return movimientoList;
     }
-
+    
+    // METODO PARA OBTENER LOS MOVIMIENTOS DE INGRESO
     public String getIngresos() {
         String movPositivos = "";
         for (int i = 0; i < movimientos.size(); i++) {
@@ -143,6 +185,7 @@ public class CuentaBancaria {
         return movPositivos;
     }
 
+    // METODO PARA OBTENER LOS MOVIMIENTOS DE RETIRADA
     public String getRetiradas() {
         String movNegativos = "";
         for (int i = 0; i < movimientos.size(); i++) {
@@ -153,4 +196,5 @@ public class CuentaBancaria {
         return movNegativos;
     }
 
+    
 }
